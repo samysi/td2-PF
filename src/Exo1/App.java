@@ -1,5 +1,7 @@
 package Exo1;
 
+import java.util.List;
+
 public class App {
 
         public static void q1() {
@@ -30,8 +32,14 @@ public class App {
 
         }
 
+        public static void q2(){
+
+        }
+
         public static void main(String[] args) {
             App.q1();
+
+
         }
     }
 
