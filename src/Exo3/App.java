@@ -138,7 +138,116 @@ public class App {
 
     }
 
+    public static void exercise_3_question_7(Annee a){
 
+        Predicate<Etudiant> session2v1 = n -> aDEF.test(n) || aNoteEliminatoire.test(n) || naPasLaMoyennev1.test(n);
+
+        afficheSi("**ETUDIANTS SOUS LA MOYENNE (v2)",session2v1,a);
+
+        /*
+        Si on test le prédicat naPasLaMoyennev1 en premier il y a une exception de type NullPointerException.
+        Il faut donc tester si l'étudiant est défaillant avant de pouvoir tester si il n'a pas la moyenne.
+         */
+
+    }
+
+    public static void afficheSiv2(String enTete, Predicate<Etudiant> predicate, Annee annee, Consumer<Etudiant> consum){
+
+        System.out.println(enTete);
+        System.out.println("\n");
+        for (Etudiant e:annee.etudiants()) {
+            if(predicate.test(e)) {
+                consum.accept(e);
+            }
+        }
+    }
+
+    public static void exercise_3_question_8(Annee a){
+
+        Predicate<Etudiant> predi = n-> true;
+
+        Consumer<Etudiant> repAfficheSi = e -> {
+            System.out.println(e.toString());
+        };
+
+        Consumer<Etudiant> repMoyenne = e -> {
+
+            if(naPasLaMoyennev2.test(e)){
+                System.out.println(e.nom()+" "+e.prenom()+" : defaillant");
+            }else{
+                System.out.println(e.nom()+" "+e.prenom()+" : "+moyenne.apply(e));
+            }
+
+        };
+
+        afficheSiv2("**TOUS LES ETUDIANTS",predi,a, repAfficheSi);
+        afficheSiv2("**MOYENNES DES ETUDIANTS",predi,a, repMoyenne);
+
+    }
+
+    static Function<Etudiant,Double> moyenneIndicative = new Function<Etudiant, Double>() {
+        @Override
+        public Double apply(Etudiant e) {
+
+            Double moy = 0.0;
+            Integer coef = 0;
+
+            for (UE ue : e.annee().ues()) {
+                for (Map.Entry<Matiere, Integer> ects : ue.ects().entrySet()) {
+
+                    Matiere matiere = ects.getKey();
+                    Integer credits = ects.getValue();
+                    if(e.notes().containsKey(matiere)){
+                        Double note = e.notes().get(matiere);
+                        moy = moy + note * credits;
+                        coef = coef + credits;
+                    }else{
+                        coef=coef+ects.getValue();
+                    }
+
+                }
+            }
+
+            moy = moy/coef;
+            return moy;
+
+        }
+    };
+
+    public static void exercise_3_question_9(Annee a){
+
+        Predicate<Etudiant> predi = n-> true;
+
+
+        Consumer<Etudiant> repMoyenneIndicative = e -> {
+            System.out.println(e.nom()+" "+e.prenom()+" : "+moyenneIndicative.apply(e));
+        };
+
+        afficheSiv2("**MOYENNES INDICATIVE DES ETUDIANTS",predi,a, repMoyenneIndicative);
+
+    }
+
+    static Predicate<Etudiant> naPasLaMoyenneGeneralise = new Predicate<Etudiant>() {
+        @Override
+        public boolean test(Etudiant etudiant) {
+
+            if(moyenneIndicative.apply(etudiant) == null || moyenneIndicative.apply(etudiant) < 10){
+                return true;
+            }
+            return false;
+
+        }
+    };
+
+    public static void exercise_3_question_10(Annee a){
+
+        Consumer<Etudiant> repMoyenneIndicative = e -> {
+            System.out.println(e.nom()+" "+e.prenom()+" : "+moyenneIndicative.apply(e));
+        };
+
+        afficheSiv2("**MOYENNES INDICATIVE DES ETUDIANTS QUI N'ONT PAS LA MOYENNE",naPasLaMoyenneGeneralise,a, repMoyenneIndicative);
+
+    }
 
     public static void main(String[] args){
 
@@ -177,6 +286,23 @@ public class App {
         // On a une exception de type NullPointerException car un élève retourne une moyenne null et non un int
 
         exercise_3_question_6(a1);
+
+        System.out.println("\n");
+
+        exercise_3_question_7(a1);
+
+        System.out.println("\n");
+
+        exercise_3_question_8(a1);
+
+        System.out.println("\n");
+
+        exercise_3_question_9(a1);
+
+        System.out.println("\n");
+
+        exercise_3_question_10(a1);
+
     }
 
 }
